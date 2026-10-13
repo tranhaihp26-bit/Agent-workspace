@@ -1,0 +1,84 @@
+name: GD4 Canonical Verification
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  # Firebase Web API keys are client configuration, not Admin credentials.
+  # CI only needs a syntactically present value because hermetic tests mock network/persistence boundaries.
+  VITE_FIREBASE_API_KEY: ci-test-only-not-a-production-key
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Production dependency audit
+        run: node scripts/security-audit.mjs
+
+      - name: Verify production manifest
+        run: node scripts/verify-production-source-manifest.mjs
+
+      - name: TypeScript
+        run: npm run lint
+
+      - name: Targeted GD4 Luot 1 tests
+        run: npx vitest run server/core/files/__tests__/fileStorageFoundation.test.ts
+
+      - name: Capability tool bridge
+        run: npx vitest run server/agent/adk/__tests__/capabilityToolBridge.test.ts
+
+      - name: Targeted GD4 Luot 2A gateway
+        run: npx vitest run server/core/files/__tests__/fileIngestion.test.ts
+
+      - name: Targeted GD4 Luot 2B client
+        run: npx vitest run src/modules/home/__tests__/fileUploadClient.test.ts
+
+      - name: Full Vitest
+        run: npm run test
+
+      - name: QA Stage 1
+        run: node scripts/qa-stage1.mjs
+      - name: QA Stage 2
+        run: node scripts/qa-stage2.mjs
+      - name: QA Stage 3A
+        run: node scripts/qa-stage3a.mjs
+      - name: QA Stage 3B
+        run: node scripts/qa-stage3b.mjs
+      - name: QA Stage 3C
+        run: node scripts/qa-stage3c.mjs
+      - name: QA Stage 4A
+        run: node scripts/qa-stage4a.mjs
+      - name: QA Stage 4B
+        run: node scripts/qa-stage4b.mjs
+      - name: QA Stage 4C
+        run: node scripts/qa-stage4c.mjs
+      - name: QA Stage 4D
+        run: node scripts/qa-stage4d.mjs
+      - name: QA Stage 5
+        run: node scripts/qa-stage5-static.mjs
+      - name: W11 Security QA
+        run: node scripts/qa-w11-security.mjs
+
+      - name: Production build
+        run: npm run build
+
+      - name: Final manifest verification
+        run: node scripts/verify-production-source-manifest.mjs

@@ -1,0 +1,5 @@
+b10db7e98f7e70f754d8c35c024da5c64382f44872be065e202c5c3bbe27b850  src/app/shell/AppShell.tsx
+ab45945f799c4f1752e3394ca19fc395d79ebcbb0d33f9c41c745b2b3922da11  src/modules/home/HomeModule.tsx
+3ddb8758c71b199290400052aa29064344e097990e34b58e01f7649b430aaef4  src/modules/home/FileUploadCard.tsx
+f01fcdcfefe95295f3a6bedb097742419a41b98400548af06b16aeb0673ca27c  src/modules/tasks/TasksStatsWidget.tsx
+ae3b22663732af1bdde29b532fd18f01577cd9e2fc48edfaac2bc5a6c54ff704  src/modules/home/__tests__/homeUx.test.ts
